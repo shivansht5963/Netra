@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Sign Up</h3>
+                </div>
+                <div class="card-body">
+                    <form id="signupForm">
+                        <div class="mb-3">
+                            <label for="usernameInput" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="usernameInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordInput" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="passwordInput" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Sign Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('signupForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const username = document.getElementById('usernameInput').value;
+    const password = document.getElementById('passwordInput').value;
+    
+    try {
+        const response = await fetch('/api/signup/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                username: username,
+                password: password
+            })
+        });
+        
+        if (response.ok) {
+            alert('Account created successfully!');
+            window.location.href = '/';
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Error creating account. Please try again.');
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+    }
+});
+</script>
+{% endblock %}

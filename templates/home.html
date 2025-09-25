@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-4">Check for Phishing URLs</h1>
+        <p class="lead">Enter a URL below to check if it's potentially a phishing website</p>
+        
+        <div class="url-input">
+            <form id="detectForm" class="mt-4">
+                <div class="input-group mb-3">
+                    <input type="url" class="form-control" id="urlInput" placeholder="Enter URL to check..." required>
+                    <button class="btn btn-primary" type="submit">Check URL</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="result-card" id="resultCard" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Analysis Result</h5>
+            </div>
+            <div class="card-body">
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('detectForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const url = document.getElementById('urlInput').value;
+    const resultCard = document.getElementById('resultCard');
+    const resultContent = document.getElementById('resultContent');
+    
+    try {
+        resultCard.style.display = 'block';
+        resultContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div><p>Analyzing URL...</p></div>';
+        
+        // Get CSRF token from cookie
+        const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken=')).split('=')[1];
+        
+        const response = await fetch('/api/detect/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ url: url })
+        });
+        
+        const data = await response.json();
+        
+        if (data.is_phishing) {
+            resultContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">⚠️ Warning: Potential Phishing Site Detected!</h4>
+                    <p>This URL has been identified as potentially malicious.</p>
+                </div>
+            `;
+        } else {
+            resultContent.innerHTML = `
+                <div class="alert alert-success">
+                    <h4 class="alert-heading">✅ Safe Website</h4>
+                    <p>This URL appears to be legitimate.</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        resultContent.innerHTML = `
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">Error</h4>
+                <p>An error occurred while analyzing the URL. Please try again.</p>
+            </div>
+        `;
+    }
+});
+</script>
+{% endblock %}
