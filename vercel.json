@@ -4,13 +4,6 @@
         {
             "src": "v3/wsgi.py",
             "use": "@vercel/python"
-        },
-        {
-            "src": "frontend/package.json",
-            "use": "@vercel/static-build",
-            "config": {
-                "distDir": "dist"
-            }
         }
     ],
     "routes": [
@@ -19,12 +12,13 @@
             "dest": "/static/$1"
         },
         {
-            "src": "/api/(.*)",
-            "dest": "v3/wsgi.py"
-        },
-        {
             "src": "/(.*)",
-            "dest": "/frontend/dist/$1"
+            "dest": "v3/wsgi.py"
         }
-    ]
+    ],
+    "functions": {
+        "v3/wsgi.py": {
+            "maxDuration": 30
+        }
+    }
 }
