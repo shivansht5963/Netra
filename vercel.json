@@ -3,7 +3,10 @@
     "builds": [
         {
             "src": "v3/wsgi.py",
-            "use": "@vercel/python"
+            "use": "@vercel/python",
+            "config": {
+                "maxLambdaSize": "15mb"
+            }
         }
     ],
     "routes": [
@@ -15,10 +18,5 @@
             "src": "/(.*)",
             "dest": "v3/wsgi.py"
         }
-    ],
-    "functions": {
-        "v3/wsgi.py": {
-            "maxDuration": 30
-        }
-    }
+    ]
 }
