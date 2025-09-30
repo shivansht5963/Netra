@@ -1,0 +1,30 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "v3/wsgi.py",
+            "use": "@vercel/python"
+        },
+        {
+            "src": "frontend/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+        },
+        {
+            "src": "/api/(.*)",
+            "dest": "v3/wsgi.py"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/frontend/dist/$1"
+        }
+    ]
+}
