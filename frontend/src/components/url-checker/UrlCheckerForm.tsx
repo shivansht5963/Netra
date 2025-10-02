@@ -40,10 +40,21 @@ const UrlCheckerForm: React.FC = () => {
 
     try {
       const normalizedUrl = normalizeUrl(url);
+      console.log('Sending request for URL:', normalizedUrl);
       const response = await detectPhishing({ url: normalizedUrl }).unwrap();
-      setResult(response);
+      console.log('Received response:', response);
+      if (response && typeof response === 'object') {
+        setResult(response);
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (err: any) {
       console.error('Detection failed:', err);
+      if (err.status === 'FETCH_ERROR') {
+        setUrlError('Network error. Please check your connection and try again.');
+      } else {
+        setUrlError(err.data?.error || err.error || 'Failed to check URL. Please try again.');
+      }
     }
   };
 

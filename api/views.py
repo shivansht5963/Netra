@@ -24,13 +24,25 @@ class SignUPView(generics.CreateAPIView):
 class DetectView(generics.GenericAPIView):
     serializer_class = URLSerializer
     def post(self, request):
-        data = self.serializer_class(data=request.data)
-        if data.is_valid():
-            url = data.validated_data['url']
-            phish = detect(url)
-            return Response(phish)
-        else:
-            return Response(data.errors)
+        try:
+            data = self.serializer_class(data=request.data)
+            if data.is_valid():
+                url = data.validated_data['url']
+                try:
+                    phish = detect(url)
+                    return Response(phish)
+                except Exception as e:
+                    return Response(
+                        {'error': str(e)},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+            else:
+                return Response(data.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class ReportView(generics.GenericAPIView):
     serializer_class = URLSerializer
